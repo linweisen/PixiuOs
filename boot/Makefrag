@@ -5,7 +5,7 @@
 # where the GNUmakefile is located.
 #
 
-BOOT_OBJS := $(OBJDIR)/boot/boot.o $(OBJDIR)/boot/main.o
+BOOT_OBJS := $(OBJDIR)/boot/boot.o
 
 $(OBJDIR)/boot/%.o: boot/%.c
 	@echo + cc -Os $<
@@ -17,14 +17,9 @@ $(OBJDIR)/boot/%.o: boot/%.S
 	@mkdir -p $(@D)
 	$(V)$(CC) -nostdinc $(KERN_CFLAGS) -c -o $@ $<
 
-$(OBJDIR)/boot/main.o: boot/main.c
-	@echo + cc -Os $<
-	$(V)$(CC) -nostdinc $(KERN_CFLAGS) -Os -c -o $(OBJDIR)/boot/main.o boot/main.c
-
 $(OBJDIR)/boot/boot: $(BOOT_OBJS)
 	@echo + ld boot/boot
-	$(V)$(LD) $(LDFLAGS) -N -e start -Ttext 0x7C00 -o $@.out $^
+	$(V)$(LD) $(LDFLAGS) -N -e _start -Ttext 0x7C00 -o $@.out $^
 	$(V)$(OBJDUMP) -S $@.out >$@.asm
 	$(V)$(OBJCOPY) -S -O binary -j .text $@.out $@
-	$(V)perl boot/sign.pl $(OBJDIR)/boot/boot
 

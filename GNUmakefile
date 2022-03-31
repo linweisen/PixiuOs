@@ -95,8 +95,8 @@ GCC_LIB := $(shell $(CC) $(CFLAGS) -print-libgcc-file-name)
 # Lists that the */Makefrag makefile fragments will add to
 OBJDIRS :=
 
-# Make sure that 'all' is the first target
-all:
+
+
 
 # Eliminate default suffix rules
 .SUFFIXES:
