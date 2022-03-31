@@ -22,4 +22,6 @@ $(OBJDIR)/boot/boot: $(BOOT_OBJS)
 	$(V)$(LD) $(LDFLAGS) -N -e _start -Ttext 0x7C00 -o $@.out $^
 	$(V)$(OBJDUMP) -S $@.out >$@.asm
 	$(V)$(OBJCOPY) -S -O binary -j .text $@.out $@
-
+	$(V)dd if=/dev/zero of=$(OBJDIR)/boot/kernel.img count=10000 2>/dev/null
+	$(V)dd if=$(OBJDIR)/boot/boot of=$(OBJDIR)/boot/kernel.img~ conv=notrunc 2>/dev/null
+	$(V)mv $(OBJDIR)/boot/kernel.img~ $(OBJDIR)/boot/kernel.img

@@ -1,0 +1,17 @@
+#
+# Makefile fragment for JOS kernel.
+# This is NOT a complete makefile;
+# you must run GNU make in the top-level directory
+# where the GNUmakefile is located.
+#
+
+
+# How to build the kernel disk image
+$(OBJDIR)/kern/kernel.img: $(OBJDIR)/boot/boot
+	@echo + mk $@
+	@mkdir -p $(@D)
+	$(V)dd if=/dev/zero of=$(OBJDIR)/kern/kernel.img~ count=10000 2>/dev/null
+	$(V)dd if=$(OBJDIR)/boot/boot of=$(OBJDIR)/kern/kernel.img~ conv=notrunc 2>/dev/null
+	$(V)mv $(OBJDIR)/kern/kernel.img~ $(OBJDIR)/kern/kernel.img
+
+all: $(OBJDIR)/kern/kernel.img
