@@ -44,7 +44,7 @@
 #		0x301 - first partition on first drive etc
 #
 ##和源码不同，源码中是0x306 第2块硬盘的第一个分区
-
+#
 	.equ ROOT_DEV, 0x301
 	ljmp    $BOOTSEG, $_start
 _start:
@@ -253,7 +253,7 @@ kill_motor:
 sectors:
 	.word 0
 
-F:
+msg1:
 	.byte 13,10
 	.ascii "IceCityOS is booting ..."
 	.byte 13,10,13,10
