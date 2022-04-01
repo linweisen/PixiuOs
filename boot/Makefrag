@@ -6,13 +6,14 @@
 #
 
 
-BOOT_OBJS := $(OBJDIR)/boot/boot.o $(OBJDIR)/boot/setup.o
+BOOT_OBJS := $(OBJDIR)/boot/boot.o
 
 $(OBJDIR)/boot/%.o: boot/%.S
+	@mkdir -p $(@D)
 	$(CC) -nostdinc $(KERN_CFLAGS) -c -o $@ $<
 
 $(OBJDIR)/boot/boot: $(BOOT_OBJS)
-	$(LD) $(LDFLAGS) -N -e _start -Ttext 0x0000 -o $@.out $@
+	$(LD) $(LDFLAGS) -N -e _start -Ttext 0x0000 -o $@.out $^
 	$(OBJDUMP) -S $@.out >$@.asm
 	$(OBJCOPY) -S -O binary -j .text $@.out $@
 	$(V)dd if=/dev/zero of=$(OBJDIR)/boot/kernel.img count=10000 2>/dev/null
