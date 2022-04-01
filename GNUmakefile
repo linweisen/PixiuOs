@@ -115,7 +115,7 @@ include boot/Makefrag
 #include kernel/Makefrag
 
 
-QEMUOPTS = -drive file=$(OBJDIR)/kern/kernel.img,index=0,media=disk,format=raw -serial mon:stdio -gdb tcp::$(GDBPORT)
+QEMUOPTS = -drive file=$(OBJDIR)/boot/kernel.img,index=0,media=disk,format=raw -serial mon:stdio -gdb tcp::$(GDBPORT)
 QEMUOPTS += $(shell if $(QEMU) -nographic -help | grep -q '^-D '; then echo '-D qemu.log'; fi)
 IMAGES = $(OBJDIR)/boot/kernel.img
 QEMUOPTS += $(QEMUEXTRA)

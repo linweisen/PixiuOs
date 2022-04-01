@@ -7,21 +7,15 @@
 
 BOOT_OBJS := $(OBJDIR)/boot/boot.o
 
-$(OBJDIR)/boot/%.o: boot/%.c
-	@echo + cc -Os $<
-	@mkdir -p $(@D)
-	$(V)$(CC) -nostdinc $(KERN_CFLAGS) -Os -c -o $@ $<
 
 $(OBJDIR)/boot/%.o: boot/%.S
-	@echo + as $<
 	@mkdir -p $(@D)
-	$(V)$(CC) -nostdinc $(KERN_CFLAGS) -c -o $@ $<
+	$(CC) -nostdinc $(KERN_CFLAGS) -c -o $@ $<
 
 $(OBJDIR)/boot/boot: $(BOOT_OBJS)
-	@echo + ld boot/boot
-	$(V)$(LD) $(LDFLAGS) -N -e _start -Ttext 0x7C00 -o $@.out $^
-	$(V)$(OBJDUMP) -S $@.out >$@.asm
-	$(V)$(OBJCOPY) -S -O binary -j .text $@.out $@
+	$(LD) $(LDFLAGS) -N -e _start -Ttext 0x0000 -o $@.out $^
+	$(OBJDUMP) -S $@.out >$@.asm
+	$(OBJCOPY) -S -O binary -j .text $@.out $@
 	$(V)dd if=/dev/zero of=$(OBJDIR)/boot/kernel.img count=10000 2>/dev/null
 	$(V)dd if=$(OBJDIR)/boot/boot of=$(OBJDIR)/boot/kernel.img~ conv=notrunc 2>/dev/null
 	$(V)mv $(OBJDIR)/boot/kernel.img~ $(OBJDIR)/boot/kernel.img
