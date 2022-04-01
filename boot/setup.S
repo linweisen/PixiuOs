@@ -1,7 +1,5 @@
 	.code16
-	.equ INITSEG, 0x9000	# we move boot here - out of the way
-	.equ SYSSEG, 0x1000	# system loaded at 0x10000 (65536).
-	.equ SETUPSEG, 0x800	# this is the current segment
+	.equ SETUPSEG, 0x800
 
 	.global _start, begtext, begdata, begbss, endtext, enddata, endbss
 	.text
@@ -21,6 +19,7 @@ _start:
 	mov $0x03, %ah
 	xor %bh, %bh
 	int $0x10
+
 	mov $29, %cx
 	mov $0x000b,%bx
 	mov $msg2,%bp
@@ -251,10 +250,11 @@ print_nl:
 	int $0x10
 	ret
 
-msg2:
+boot_msg:
 	.byte 13,10
 	.ascii "Now PixiuOs in setup ..."
 	.byte 13,10,13,10
+boot_msg_end:
 cur:
 	.ascii "Cursor POS:"
 mem:

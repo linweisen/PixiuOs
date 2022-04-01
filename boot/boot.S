@@ -48,6 +48,7 @@ show_mbr_msg:
 	mov	$LN, %cx
 	mov	$0x0007, %bx
 	mov $mbr_msg, %bp
+
 	mov	$0x1301, %ax
 	int	$0x10
 	jmp end
