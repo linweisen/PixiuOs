@@ -1,6 +1,4 @@
 	.code16
-	.equ SYSSIZE, 0x3000
-
 	.global _start, begtext, begdata, begbss, endtext, enddata, endbss
 	.text
 	begtext:
@@ -15,11 +13,11 @@
 	.equ SETUPSEG, 0x800
 	.equ ROOT_DEV, 0x301
 _start:
-    mov	$BOOTSEG, %ax		#将ds,es,ss都设置成移动后代码所在的段处(0x9000)
+    mov	%cs, %ax		#将ds,es,ss都设置成移动后代码所在的段处(0x9000)
 	mov	%ax, %ds
 	mov	%ax, %es
 	mov	%ax, %ss
-	mov	$0x00, %sp
+	mov	$BOOTSEG, %sp
 # -----------------------------------------------------------
 #   INT 0x10   功能号:0x03	   功能描述:获取光标位置
 # -----------------------------------------------------------
@@ -48,10 +46,8 @@ show_mbr_msg:
 	mov	$LN, %cx
 	mov	$0x0007, %bx
 	mov $mbr_msg, %bp
-
 	mov	$0x1301, %ax
 	int	$0x10
-	jmp end
 # ------------------------------------------------------------------
 #   INT 0x13   功能号:0x02	   功能描述:读扇区
 # ------------------------------------------------------------------
@@ -65,14 +61,10 @@ show_mbr_msg:
 load_setup:
 	mov	$0x0000, %dx
 	mov	$0x0002, %cx
-	push %es
-    mov $SETUPSEG, %ax
-    mov %ax, %es
-	mov	$0x0200, %bx
+    mov $SETUPSEG, %bx
 	.equ AX, 0x0200+SETUPLEN
 	mov $AX, %ax
 	int	$0x13
-	pop %es
 	jnc	ok_load_setup
 	jmp end
 ok_load_setup:

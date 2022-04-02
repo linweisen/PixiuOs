@@ -6,17 +6,27 @@
 #
 
 
-BOOT_OBJS := $(OBJDIR)/boot/boot.o
+BOOT_OBJS := $(OBJDIR)/boot/boot $(OBJDIR)/boot/setup
+
+$(OBJDIR)/boot/kernel.img: $(BOOT_OBJS)
+	$(V)dd if=/dev/zero of=$(OBJDIR)/boot/kernel.img count=10000 2>/dev/null
+	$(V)dd if=$(OBJDIR)/boot/boot of=$(OBJDIR)/boot/kernel.img~ conv=notrunc 2>/dev/null
+	$(V)mv $(OBJDIR)/boot/kernel.img~ $(OBJDIR)/boot/kernel.img
 
 $(OBJDIR)/boot/%.o: boot/%.S
 	@mkdir -p $(@D)
 	$(CC) -nostdinc $(KERN_CFLAGS) -c -o $@ $<
 
-$(OBJDIR)/boot/boot: $(BOOT_OBJS)
+$(OBJDIR)/boot/setup: $(OBJDIR)/boot/setup.o
 	$(LD) $(LDFLAGS) -N -e _start -Ttext 0x0000 -o $@.out $^
 	$(OBJDUMP) -S $@.out >$@.asm
 	$(OBJCOPY) -S -O binary -j .text $@.out $@
-	$(V)dd if=/dev/zero of=$(OBJDIR)/boot/kernel.img count=10000 2>/dev/null
-	$(V)dd if=$(OBJDIR)/boot/boot of=$(OBJDIR)/boot/kernel.img~ conv=notrunc 2>/dev/null
-	$(V)mv $(OBJDIR)/boot/kernel.img~ $(OBJDIR)/boot/kernel.img
 
+$(OBJDIR)/boot/boot: $(OBJDIR)/boot/boot.o
+	$(LD) $(LDFLAGS) -N -e _start -Ttext 0x7c00 -o $@.out $^
+	$(OBJDUMP) -S $@.out >$@.asm
+	$(OBJCOPY) -S -O binary -j .text $@.out $@
+
+
+
+all: $(OBJDIR)/boot/kernel.img

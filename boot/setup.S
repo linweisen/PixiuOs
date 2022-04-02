@@ -1,5 +1,6 @@
 	.code16
 	.equ SETUPSEG, 0x800
+	.equ INFOSEG, 0x700
 
 	.global _start, begtext, begdata, begbss, endtext, enddata, endbss
 	.text
@@ -10,7 +11,6 @@
 	begbss:
 	.text
 
-	ljmp $SETUPSEG, $_start	
 _start:
 	mov %cs,%ax
 	mov %ax,%ds
@@ -20,14 +20,16 @@ _start:
 	xor %bh, %bh
 	int $0x10
 
-	mov $29, %cx
+    .equ MSG_LEN, boot_msg_end-boot_msg
+	mov $MSG_LEN, %cx
 	mov $0x000b,%bx
-	mov $msg2,%bp
+	mov $boot_msg,%bp
 	mov $0x1301, %ax
 	int $0x10
+	jmp end
 # ok, the read went well so we get current cursor position and save it for
 # posterity.
-	mov	$INITSEG, %ax	# this is done in bootsect already, but...
+	mov	$INFOSEG, %ax	# this is done in bootsect already, but...
 	mov	%ax, %ds
 	mov	$0x03, %ah	# read cursor pos
 	xor	%bh, %bh
@@ -38,85 +40,8 @@ _start:
 	int	$0x15
 	mov	%ax, %ds:2
 
-# Get video-card data:
-	mov	$0x0f, %ah
-	int	$0x10
-	mov	%bx, %ds:4	# bh = display page
-	mov	%ax, %ds:6	# al = video mode, ah = window width
-
-# check for EGA/VGA and some config parameters
-	mov	$0x12, %ah
-	mov	$0x10, %bl
-	int	$0x10
-	mov	%ax, %ds:8
-	mov	%bx, %ds:10
-	mov	%cx, %ds:12
-
-# Get hd0 data
-
-	mov	$0x0000, %ax
-	mov	%ax, %ds
-	lds	%ds:4*0x41, %si
-	mov	$INITSEG, %ax
-	mov	%ax, %es
-	mov	$0x0080, %di
-	mov	$0x10, %cx
-	rep
-	movsb
-
-# Get hd1 data
-
-	mov	$0x0000, %ax
-	mov	%ax, %ds
-	lds	%ds:4*0x46, %si
-	mov	$INITSEG, %ax
-	mov	%ax, %es
-	mov	$0x0090, %di
-	mov	$0x10, %cx
-	rep
-	movsb
-
-#l:
-#	jmp l
-##
-# Check that there IS a hd1 :-)
-
-	mov	$0x01500, %ax
-	mov	$0x81, %dl
-	int	$0x13
-	jc	no_disk1
-	cmp	$3, %ah
-	je	is_disk1
-no_disk1:
-	mov	$INITSEG, %ax
-	mov	%ax, %es
-	mov	$0x0090, %di
-	mov	$0x10, %cx
-	mov	$0x00, %ax
-	rep
-	stosb
-is_disk1:
-
-# now we want to move to protected mode ...
-
-	cli			# no interrupts allowed ! 
-
-# first we move the system to it's rightful place
-
-	mov	$0x0000, %ax
-	cld			# 'direction'=0, movs moves forward
-do_move:
-	mov	%ax, %es	# destination segment
-	add	$0x1000, %ax
-	cmp	$0x9000, %ax
-	jz	end_move
-	mov	%ax, %ds	# source segment
-	sub	%di, %di
-	sub	%si, %si
-	mov 	$0x8000, %cx
-	rep
-	movsw
-	jmp	do_move
+end:
+    jmp end
 
 # then we load the segment descriptors
 
