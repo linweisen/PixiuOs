@@ -8,12 +8,12 @@
 	begbss:
 	.text
 
-	.equ SETUPLEN, 4		# nr of setup-sectors
+	.equ SETUPLEN, 1		# nr of setup-sectors
 	.equ BOOTSEG, 0x07c0		# original address of boot-sector
 	.equ SETUPSEG, 0x800
 	.equ ROOT_DEV, 0x301
 _start:
-    mov	%cs, %ax		#将ds,es,ss都设置成移动后代码所在的段处(0x9000)
+    mov	%cs, %ax
 	mov	%ax, %ds
 	mov	%ax, %es
 	mov	%ax, %ss
@@ -59,9 +59,11 @@ show_mbr_msg:
 # 返回值:
 # 如果出错则CF标志置位, AH中是出错码
 load_setup:
-	mov	$0x0000, %dx
+	mov	$0x0080, %dx
 	mov	$0x0002, %cx
-    mov $SETUPSEG, %bx
+	mov $SETUPSEG, %ax
+    mov %ax, %es
+    xor %bx, %bx
 	.equ AX, 0x0200+SETUPLEN
 	mov $AX, %ax
 	int	$0x13

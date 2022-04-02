@@ -194,6 +194,7 @@ head:
 	.ascii "Headers:"
 sect:
 	.ascii "Secotrs:"
+    .org 512
 .text
 endtext:
 .data
