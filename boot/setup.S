@@ -178,7 +178,7 @@ print_nl:
 boot_msg:
 	.byte 13,10
 	.ascii "Now PixiuOs in setup ..."
-	.byte 13,10,13,10
+	.byte 13,10
 boot_msg_end:
 cur:
 	.ascii "Cursor POS:"

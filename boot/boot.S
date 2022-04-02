@@ -76,7 +76,7 @@ end:
 mbr_msg:
 	.byte 13,10
 	.ascii "PixiuOs is booting ..."
-	.byte 13,10,13,10
+	.byte 13,10
 mbr_msg_end:
 	.org 508
 root_dev:
