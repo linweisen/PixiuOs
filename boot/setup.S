@@ -1,6 +1,7 @@
 	.code16
 	.equ SETUPSEG, 0x800
 	.equ INFOSEG, 0x700
+	.equ CR0_PE_ON, 0x1
 
 	.global _start, begtext, begdata, begbss, endtext, enddata, endbss
 	.text
@@ -10,7 +11,6 @@
 	.bss
 	begbss:
 	.text
-
 _start:
 	mov %cs,%ax
 	mov %ax,%ds
@@ -19,7 +19,6 @@ _start:
 	mov $0x03, %ah
 	xor %bh, %bh
 	int $0x10
-
     .equ MSG_LEN, boot_msg_end-boot_msg
 	mov $MSG_LEN, %cx
 	mov $0x000b,%bx
@@ -39,9 +38,6 @@ _start:
 	mov	$0x88, %ah 
 	int	$0x15
 	mov	%ax, %ds:2
-
-end:
-    jmp end
 
 # then we load the segment descriptors
 
@@ -100,20 +96,9 @@ end_move:
 	.word	0x00eb,0x00eb
 	out	%al, $0xA1
 
-# well, that certainly wasn't fun :-(. Hopefully it works, and we don't
-# need no steenking BIOS anyway (except for the initial loading :-).
-# The BIOS-routine wants lots of unnecessary data, and it's less
-# "interesting" anyway. This is how REAL programmers do it.
-#
-# Well, now's the time to actually move into protected mode. To make
-# things as simple as possible, we do no register set-up or anything,
-# we let the gnu-compiled 32-bit programs do that. We just jump to
-# absolute address 0x00000, in 32-bit protected mode.
-	#mov	$0x0001, %ax	# protected mode (PE) bit
-	#lmsw	%ax		# This is it!
-	mov	%cr0, %eax	# get machine status(cr0|MSW)	
-	bts	$0, %eax	# turn on the PE-bit 
-	mov	%eax, %cr0	# protection enabled
+	movl    %cr0, %eax
+    orl     $CR0_PE_ON, %eax
+    movl    %eax, %cr0
 				
 				# segment-descriptor        (INDEX:TI:RPL)
 	.equ	sel_cs0, 0x0008 # select for code segment 0 (  001:0 :00) 
@@ -131,7 +116,18 @@ empty_8042:
 
 gdt:
 	.word	0,0,0,0		# dummy
-
+#================ 代码段===================
+# 基地址 0x00000000
+# 段界限 0x007FF (2047 + 1) * 4096 = 8MB
+# G(颗粒度) = 1 (4096K)
+# D/B(有效地址及操作数) = 1 32位
+# L = 0 32位(=1位64位）
+# AVL = 0
+# P(Present 是否存在) = 1
+# DPL = 00 特权级
+# S = 1 非系统段
+# TYPE(XCRA) = 1010 可读/可执行代码段
+#==========================================
 	.word	0x07FF		# 8Mb - limit=2047 (2048*4096=8Mb)
 	.word	0x0000		# base address=0
 	.word	0x9A00		# code read/exec
@@ -174,7 +170,6 @@ print_nl:
 	mov $0xa,%al
 	int $0x10
 	ret
-
 boot_msg:
 	.byte 13,10
 	.ascii "Now PixiuOs in setup ..."
