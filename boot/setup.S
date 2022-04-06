@@ -115,7 +115,7 @@ empty_8042:
 	ret
 
 gdt:
-	.word	0,0,0,0		# dummy
+	.word	0,0,0,0
 #================ 代码段===================
 # 基地址 0x00000000
 # 段界限 0x007FF (2047 + 1) * 4096 = 8MB
@@ -128,15 +128,26 @@ gdt:
 # S = 1 非系统段
 # TYPE(XCRA) = 1010 可读/可执行代码段
 #==========================================
-	.word	0x07FF		# 8Mb - limit=2047 (2048*4096=8Mb)
-	.word	0x0000		# base address=0
-	.word	0x9A00		# code read/exec
-	.word	0x00C0		# granularity=4096, 386
-
-	.word	0x07FF		# 8Mb - limit=2047 (2048*4096=8Mb)
-	.word	0x0000		# base address=0
-	.word	0x9200		# data read/write
-	.word	0x00C0		# granularity=4096, 386
+	.word	0x07FF
+	.word	0x0000
+	.word	0x9A00
+	.word	0x00C0
+#================ 数据段===================
+# 基地址 0x00000000
+# 段界限 0x007FF (2047 + 1) * 4096 = 8MB
+# G(颗粒度) = 1 (4096K)
+# D/B(有效地址及操作数) = 1 32位
+# L = 0 32位(=1位64位）
+# AVL = 0
+# P(Present 是否存在) = 1
+# DPL = 00 特权级
+# S = 1 非系统段
+# TYPE(XCRA) = 0010 可读写数据段
+#==========================================
+	.word	0x07FF
+	.word	0x0000
+	.word	0x9200
+	.word	0x00C0
 
 idt_48:
 	.word	0			# idt limit=0
