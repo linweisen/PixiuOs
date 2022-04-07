@@ -9,10 +9,10 @@
 BOOT_OBJS := $(OBJDIR)/boot/boot $(OBJDIR)/boot/setup
 
 $(OBJDIR)/boot/kernel.img: $(BOOT_OBJS)
-	$(V)dd if=/dev/zero of=$(OBJDIR)/boot/kernel.img count=10000 2>/dev/null
-	$(V)dd if=$(OBJDIR)/boot/boot of=$(OBJDIR)/boot/kernel.img~ conv=notrunc 2>/dev/null
-	$(V)dd if=$(OBJDIR)/boot/setup of=$(OBJDIR)/boot/kernel.img~ seek=1 conv=notrunc 2>/dev/null
-	$(V)mv $(OBJDIR)/boot/kernel.img~ $(OBJDIR)/boot/kernel.img
+	dd if=/dev/zero of=$(OBJDIR)/boot/kernel.img~ count=10000 2>/dev/null
+	dd if=$(OBJDIR)/boot/boot of=$(OBJDIR)/boot/kernel.img~ conv=notrunc 2>/dev/null
+	dd if=$(OBJDIR)/boot/setup of=$(OBJDIR)/boot/kernel.img~ seek=1 conv=notrunc 2>/dev/null
+	mv $(OBJDIR)/boot/kernel.img~ $(OBJDIR)/boot/kernel.img
 
 $(OBJDIR)/boot/%.o: boot/%.S
 	@mkdir -p $(@D)

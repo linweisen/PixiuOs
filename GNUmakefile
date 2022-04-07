@@ -123,7 +123,7 @@ QEMUOPTS += $(QEMUEXTRA)
 .gdbinit: .gdbinit.tmpl
 	sed "s/localhost:1234/localhost:$(GDBPORT)/" < $^ > $@
 
-gdb:
+gdb: .gdbinit
 	gdb -n -x .gdbinit
 
 pre-qemu: .gdbinit

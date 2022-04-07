@@ -27,46 +27,34 @@ _start:
 	mov $boot_msg,%bp
 	mov $0x1301, %ax
 	int $0x10
-# ok, the read went well so we get current cursor position and save it for
-# posterity.
-	mov	$INFOSEG, %ax	# this is done in bootsect already, but...
-	mov	%ax, %ds
-	mov	$0x03, %ah	# read cursor pos
-	xor	%bh, %bh
-	int	$0x10		# save it in known place, con_init fetches
-	mov	%dx, %ds:0	# it from 0x90000.
-# Get memory size (extended mem, kB)
-	mov	$0x88, %ah
-	int	$0x15
-	mov	%ax, %ds:2
 
 #进入保护模式
     cli
     cld
-	lgdt	gdt_48
+	lgdt gdt_48
 
-	inb     $0x92, %al
-	orb     $0b00000010, %al
-	outb    %al, $0x92
+	inb $0x92, %al
+	orb $0b00000010, %al
+	outb %al, $0x92
 
-	movl    %cr0, %eax
-    orl     $CR0_PE_ON, %eax
-    movl    %eax, %cr0
+	movl %cr0, %eax
+    orl $CR0_PE_ON, %eax
+    movl %eax, %cr0
 
     .equ PRO_START, protcseg+0x8000
-	ljmp	$PROT_MODE_CSEG, $PRO_START
+	ljmp $PROT_MODE_CSEG, $PRO_START
 
   .code32
 protcseg:
-    movw    $PROT_MODE_DSEG, %ax    # Our data segment selector
-    movw    %ax, %ds                # -> DS: Data Segment
-    movw    %ax, %es                # -> ES: Extra Segment
-    movw    %ax, %fs                # -> FS
-    movw    %ax, %gs                # -> GS
-    movw    %ax, %ss                # -> SS: Stack Segment
+    movw $PROT_MODE_DSEG, %ax    # Our data segment selector
+    movw %ax, %ds                # -> DS: Data Segment
+    movw %ax, %es                # -> ES: Extra Segment
+    movw %ax, %fs                # -> FS
+    movw %ax, %gs                # -> GS
+    movw %ax, %ss                # -> SS: Stack Segment
 
     # Set up the stack pointer and call into C.
-    movl    $SETUPSEG, %esp
+    movl $SETUPSEG, %esp
     call boot_kernel
 
 gdt:
@@ -105,30 +93,13 @@ gdt:
 	.word	0x00C0
 
 gdt_48:
-	.word	0x800			# gdt limit=2048, 256 GDT entries
-	.long   gdt+0x8000		# gdt base = 0X9xxxx,
-	# 512+gdt is the real gdt after setup is moved to 0x9020 * 0x10
-
+	.word	0x800
+	.long   gdt+0x8000
 boot_msg:
 	.byte 13,10
 	.ascii "Now PixiuOs in setup ..."
 	.byte 13,10
 boot_msg_end:
-cur:
-	.ascii "Cursor POS:"
-mem:
-	.ascii "Memory SIZE:"
-cyl:
-	.ascii "KB"
-	.byte 13,10,13,10
-	.ascii "HD Info"
-	.byte 13,10
-	.ascii "Cylinders:"
-head:
-	.ascii "Headers:"
-sect:
-	.ascii "Secotrs:"
-    .org 512
 .text
 endtext:
 .data
