@@ -18,10 +18,15 @@ $(OBJDIR)/boot/%.o: boot/%.S
 	@mkdir -p $(@D)
 	$(CC) -nostdinc $(KERN_CFLAGS) -c -o $@ $<
 
+$(OBJDIR)/boot/loader.o: boot/loader.c
+	$(CC) -nostdinc $(KERN_CFLAGS) -Os -c -o $(OBJDIR)/boot/loader.o boot/loader.c
+
 $(OBJDIR)/boot/setup: $(OBJDIR)/boot/setup.o
 	$(LD) $(LDFLAGS) -N -e _start -Ttext 0x0000 -o $@.out $^
 	$(OBJDUMP) -S $@.out >$@.asm
+	$(NM) -n $@.out > $@.sym
 	$(OBJCOPY) -S -O binary -j .text $@.out $@
+
 
 $(OBJDIR)/boot/boot: $(OBJDIR)/boot/boot.o
 	$(LD) $(LDFLAGS) -N -e _start -Ttext 0x7c00 -o $@.out $^
