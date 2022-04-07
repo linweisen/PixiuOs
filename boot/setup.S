@@ -14,6 +14,32 @@
 	begbss:
 	.text
 _start:
+	mov %cs,%ax
+	mov %ax,%ds
+	mov %ax,%es
+# 获取光标位置，之后打印提示信息
+	mov $0x03, %ah
+	xor %bh, %bh
+	int $0x10
+    .equ MSG_LEN, boot_msg_end-boot_msg
+	mov $MSG_LEN, %cx
+	mov $0x000b,%bx
+	mov $boot_msg,%bp
+	mov $0x1301, %ax
+	int $0x10
+# ok, the read went well so we get current cursor position and save it for
+# posterity.
+	mov	$INFOSEG, %ax	# this is done in bootsect already, but...
+	mov	%ax, %ds
+	mov	$0x03, %ah	# read cursor pos
+	xor	%bh, %bh
+	int	$0x10		# save it in known place, con_init fetches
+	mov	%dx, %ds:0	# it from 0x90000.
+# Get memory size (extended mem, kB)
+	mov	$0x88, %ah
+	int	$0x15
+	mov	%ax, %ds:2
+
 #进入保护模式
     cli
     cld
@@ -41,8 +67,8 @@ protcseg:
 
     # Set up the stack pointer and call into C.
     movl    $SETUPSEG, %esp
-spin:
-  jmp spin
+    call boot_kernel
+
 gdt:
 	.word	0,0,0,0
 #================ 代码段===================
