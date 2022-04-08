@@ -83,7 +83,7 @@ GCC_LIB := $(shell $(CC) $(CFLAGS) -print-libgcc-file-name)
 OBJDIRS :=
 
 
-
+all:
 
 # Eliminate default suffix rules
 .SUFFIXES:
@@ -112,7 +112,7 @@ $(OBJDIR)/.vars.%: FORCE
 
 # Include Makefrags for subdirectories
 include boot/Makefrag
-#include kernel/Makefrag
+include kernel/Makefrag
 
 
 QEMUOPTS = -drive file=$(OBJDIR)/boot/kernel.img,index=0,media=disk,format=raw -serial mon:stdio -gdb tcp::$(GDBPORT)
@@ -203,5 +203,4 @@ git-handin: handin-check
 always:
 	@:
 
-.PHONY: all always \
-	handin git-handin tarball tarball-pref clean realclean distclean grade handin-prep handin-check
+.PHONY: all

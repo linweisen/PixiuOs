@@ -6,12 +6,9 @@
 #
 
 
-# How to build the kernel disk image
-$(OBJDIR)/kern/kernel.img: $(OBJDIR)/boot/boot
-	@echo + mk $@
-	@mkdir -p $(@D)
-	$(V)dd if=/dev/zero of=$(OBJDIR)/kern/kernel.img~ count=10000 2>/dev/null
-	$(V)dd if=$(OBJDIR)/boot/boot of=$(OBJDIR)/kern/kernel.img~ conv=notrunc 2>/dev/null
-	$(V)mv $(OBJDIR)/kern/kernel.img~ $(OBJDIR)/kern/kernel.img
-
-all: $(OBJDIR)/kern/kernel.img
+$(OBJDIR)/boot/kernel.img: $(BOOT_OBJS)
+	dd if=/dev/zero of=$(OBJDIR)/boot/kernel.img~ count=10000 2>/dev/null
+	dd if=$(OBJDIR)/boot/boot of=$(OBJDIR)/boot/kernel.img~ conv=notrunc 2>/dev/null
+	dd if=$(OBJDIR)/boot/setup of=$(OBJDIR)/boot/kernel.img~ seek=1 conv=notrunc 2>/dev/null
+	mv $(OBJDIR)/boot/kernel.img~ $(OBJDIR)/boot/kernel.img
+all: $(OBJDIR)/boot/kernel.img
