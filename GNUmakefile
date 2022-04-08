@@ -1,6 +1,5 @@
 OBJDIR := obj
 
-# Run 'make V=1' to turn on verbose commands, or 'make V=0' to turn them off.
 ifeq ($(V),1)
 override V =
 endif
@@ -12,18 +11,6 @@ endif
 
 TOP = .
 
-# Cross-compiler jos toolchain
-#
-# This Makefile will automatically use the cross-compiler toolchain
-# installed as 'i386-jos-elf-*', if one exists.  If the host tools ('gcc',
-# 'objdump', and so forth) compile for a 32-bit x86 ELF target, that will
-# be detected as well.  If you have the right compiler toolchain installed
-# using a different name, set GCCPREFIX explicitly in conf/env.mk
-
-# try to infer the correct GCCPREFIX
-
-
-# try to infer the correct QEMU
 ifndef QEMU
 QEMU := $(shell if which qemu >/dev/null 2>&1; \
 	then echo qemu; exit; \
@@ -85,32 +72,13 @@ OBJDIRS :=
 
 all:
 
-# Eliminate default suffix rules
-.SUFFIXES:
-
-# Delete target files if there is an error (or make is interrupted)
-.DELETE_ON_ERROR:
-
-# make it so that no intermediate .o files are ever deleted
-.PRECIOUS: %.o $(OBJDIR)/boot/%.o $(OBJDIR)/kern/%.o \
-	   $(OBJDIR)/lib/%.o $(OBJDIR)/fs/%.o $(OBJDIR)/net/%.o \
-	   $(OBJDIR)/user/%.o
 
 KERN_CFLAGS := $(CFLAGS) -DJOS_KERNEL -gstabs
 USER_CFLAGS := $(CFLAGS) -DJOS_USER -gstabs
 
-# Update .vars.X if variable X has changed since the last make run.
-#
-# Rules that use variable X should depend on $(OBJDIR)/.vars.X.  If
-# the variable's value has changed, this will update the vars file and
-# force a rebuild of the rule that depends on it.
-$(OBJDIR)/.vars.%: FORCE
-	$(V)echo "$($*)" | cmp -s $@ || echo "$($*)" > $@
-.PRECIOUS: $(OBJDIR)/.vars.%
-.PHONY: FORCE
 
 
-# Include Makefrags for subdirectories
+
 include boot/Makefrag
 include kernel/Makefrag
 
@@ -158,47 +126,12 @@ print-gdbport:
 print-gccprefix:
 	@echo $(GCCPREFIX)
 
-# For deleting the build
 clean:
 	rm -rf $(OBJDIR) .gdbinit jos.in qemu.log
-
-realclean: clean
-	rm -rf lab$(LAB).tar.gz \
-		jos.out $(wildcard jos.out.*) \
-		qemu.pcap $(wildcard qemu.pcap.*) \
-		myapi.key
-
-distclean: realclean
-	rm -rf conf/gcc.mk
 
 ifneq ($(V),@)
 GRADEFLAGS += -v
 endif
-
-grade:
-	@echo $(MAKE) clean
-	@$(MAKE) clean || \
-	  (echo "'make clean' failed.  HINT: Do you have another running instance of JOS?" && exit 1)
-	./grade-lab$(LAB) $(GRADEFLAGS)
-
-git-handin: handin-check
-	@if test -n "`git config remote.handin.url`"; then \
-		echo "Hand in to remote repository using 'git push handin HEAD' ..."; \
-		if ! git push -f handin HEAD; then \
-            echo ; \
-			echo "Hand in failed."; \
-			echo "As an alternative, please run 'make tarball'"; \
-			echo "and visit http://pdos.csail.mit.edu/6.828/submit/"; \
-			echo "to upload lab$(LAB)-handin.tar.gz.  Thanks!"; \
-			false; \
-		fi; \
-    else \
-		echo "Hand-in repository is not configured."; \
-		echo "Please run 'make handin-prep' first.  Thanks!"; \
-		false; \
-	fi
-
-#-include $(OBJDIR)/.deps
 
 always:
 	@:
