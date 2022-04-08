@@ -21,8 +21,8 @@ $(OBJDIR)/boot/%.o: boot/%.S
 $(OBJDIR)/boot/loader.o: boot/loader.c
 	$(CC) -nostdinc $(KERN_CFLAGS) -Os -c -o $(OBJDIR)/boot/loader.o boot/loader.c
 
-$(OBJDIR)/boot/setup: $(OBJDIR)/boot/setup.o  $(OBJDIR)/boot/loader.o
-	$(LD) $(LDFLAGS) -N -e _start -Ttext 0x0000 -o $@.out $^
+$(OBJDIR)/boot/setup: $(OBJDIR)/boot/setup.o $(OBJDIR)/boot/loader.o
+	$(LD) $(LDFLAGS) -N -e _start -Ttext 0x8000 -o $@.out $^
 	$(OBJDUMP) -S $@.out >$@.asm
 	$(NM) -n $@.out > $@.sym
 	$(OBJCOPY) -S -O binary -j .text $@.out $@

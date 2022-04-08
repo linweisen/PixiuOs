@@ -1,7 +1,7 @@
     .code16
     .equ SETUPLEN, 1
-    .equ BOOTSEG, 0x7c00
     .equ SETUPSEG, 0x800
+    .equ STACKADDR, 0x800*0x10
     .equ BOOTMSGLN, mbr_msg_end-mbr_msg
 
     .global _start
@@ -10,7 +10,7 @@ _start:
     mov %ax, %ds
     mov %ax, %es
     mov %ax, %ss
-    mov $BOOTSEG, %sp
+    mov $STACKADDR, %sp
 # -----------------------------------------------------------
 #   INT 0x10   功能号:0x03       功能描述:获取光标位置
 # -----------------------------------------------------------
@@ -63,7 +63,7 @@ load_setup:
     jnc ok_load_setup
     jmp end                    #加载失败则无限循环
 ok_load_setup:
-    ljmp $SETUPSEG, $0         #跳转到setup 0x800:0
+    ljmp $0, $STACKADDR         #跳转到setup 0x0:8000
 end:
     jmp end
 mbr_msg:

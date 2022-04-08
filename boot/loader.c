@@ -2,7 +2,7 @@
 #include <inc/elf.h>
 
 #define SECTSIZE	512
-#define ELFHDR		((struct Elf *) 0x0) // scratch space
+#define ELFHDR		((struct Elf *) 0x10000) // scratch space
 
 void readsect(void*, uint32_t);
 void readseg(uint32_t, uint32_t, uint32_t);
