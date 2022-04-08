@@ -1,4 +1,4 @@
-IMG_OBJS := $(OBJDIR)/boot/boot $(OBJDIR)/boot/setup $(OBJDIR)/kern/kernel
+IMG_OBJS := $(OBJDIR)/boot/boot $(OBJDIR)/boot/setup $(OBJDIR)/kernel/pixiu
 
 KERN_SRCFILES := kernel/main.c
 
@@ -9,24 +9,27 @@ KERN_BINFILES :=
 
 KERN_OBJFILES := $(patsubst %.c, $(OBJDIR)/%.o, $(KERN_SRCFILES))
 KERN_OBJFILES := $(patsubst %.S, $(OBJDIR)/%.o, $(KERN_OBJFILES))
-KERN_OBJFILES := $(patsubst $(OBJDIR)/lib/%, $(OBJDIR)/kern/%, $(KERN_OBJFILES))
+KERN_OBJFILES := $(patsubst $(OBJDIR)/lib/%, $(OBJDIR)/kernel/%, $(KERN_OBJFILES))
 
 KERN_BINFILES := $(patsubst %, $(OBJDIR)/%, $(KERN_BINFILES))
 
 # Only build files if they exist.
 KERN_SRCFILES := $(wildcard $(KERN_SRCFILES))
 
-$(OBJDIR)/boot/kernel.img: $(IMG_OBJS)
+$(OBJDIR)/kernel/kernel.img: $(IMG_OBJS)
 	dd if=/dev/zero of=$(OBJDIR)/boot/kernel.img~ count=10000 2>/dev/null
-	dd if=$(OBJDIR)/boot/boot of=$(OBJDIR)/boot/kernel.img~ conv=notrunc 2>/dev/null
-	dd if=$(OBJDIR)/boot/setup of=$(OBJDIR)/boot/kernel.img~ seek=1 conv=notrunc 2>/dev/null
-	dd if=$(OBJDIR)/kern/kernel of=$(OBJDIR)/kern/kernel.img~ seek=3 conv=notrunc 2>/dev/null
+	dd if=$(OBJDIR)/boot/boot of=$(OBJDIR)/kernel/kernel.img~ conv=notrunc 2>/dev/null
+	dd if=$(OBJDIR)/boot/setup of=$(OBJDIR)/kernel/kernel.img~ seek=1 conv=notrunc 2>/dev/null
+	dd if=$(OBJDIR)/kernel/pixiu of=$(OBJDIR)/kernel/kernel.img~ seek=3 conv=notrunc 2>/dev/null
 	mv $(OBJDIR)/boot/kernel.img~ $(OBJDIR)/boot/kernel.img
 
-$(OBJDIR)/kern/kernel: $(KERN_OBJFILES) $(KERN_BINFILES) kern/kernel.ld
-	@echo + ld $@
-	$(LD) -o $@ $(KERN_LDFLAGS) $(KERN_OBJFILES) $(GCC_LIB) -b binary $(KERN_BINFILES)
+$(OBJDIR)/kernel/%.o: kernel/%.c
+	@mkdir -p $(@D)
+	$(CC) -nostdinc $(KERN_CFLAGS) -c -o $@ $<
+
+$(OBJDIR)/kernel/pixiu: $(KERN_OBJFILES) $(KERN_BINFILES)
+	$(LD) -o $@ $(KERN_LDFLAGS) $(KERN_OBJFILES) $(GCC_LIB) -e main -b binary $(KERN_BINFILES)
 	$(OBJDUMP) -S $@ > $@.asm
 	$(NM) -n $@ > $@.sym
 
-all: $(OBJDIR)/boot/kernel.img
+all: $(OBJDIR)/kernel/kernel.img

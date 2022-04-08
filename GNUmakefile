@@ -91,12 +91,12 @@ QEMUOPTS += $(QEMUEXTRA)
 .gdbinit: .gdbinit.tmpl
 	sed "s/localhost:1234/localhost:$(GDBPORT)/" < $^ > $@
 
-gdb: .gdbinit
+gdb:
 	gdb -n -x .gdbinit
 
 pre-qemu: .gdbinit
 
-qemu: $(IMAGES) pre-qemu
+qemu: $(IMAGES)
 	$(QEMU) $(QEMUOPTS)
 
 qemu-nox: $(IMAGES) pre-qemu
@@ -105,7 +105,7 @@ qemu-nox: $(IMAGES) pre-qemu
 	@echo "***"
 	$(QEMU) -nographic $(QEMUOPTS)
 
-qemu-gdb: $(IMAGES) pre-qemu
+qemu-gdb: $(IMAGES)
 	@echo "***"
 	@echo "*** Now run 'make gdb'." 1>&2
 	@echo "***"
