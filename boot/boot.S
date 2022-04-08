@@ -1,25 +1,18 @@
-	.code16
-	.global _start, begtext, begdata, begbss, endtext, enddata, endbss
-	.text
-	begtext:
-	.data
-	begdata:
-	.bss
-	begbss:
-	.text
+    .code16
+    .equ SETUPLEN, 1
+    .equ BOOTSEG, 0x7c00
+    .equ SETUPSEG, 0x800
+    .equ BOOTMSGLN, mbr_msg_end-mbr_msg
 
-	.equ SETUPLEN, 1		# nr of setup-sectors
-	.equ BOOTSEG, 0x07c0		# original address of boot-sector
-	.equ SETUPSEG, 0x800
-	.equ ROOT_DEV, 0x301
+    .global _start
 _start:
-    mov	%cs, %ax
-	mov	%ax, %ds
-	mov	%ax, %es
-	mov	%ax, %ss
-	mov	$BOOTSEG, %sp
+    mov %cs, %ax
+    mov %ax, %ds
+    mov %ax, %es
+    mov %ax, %ss
+    mov $BOOTSEG, %sp
 # -----------------------------------------------------------
-#   INT 0x10   功能号:0x03	   功能描述:获取光标位置
+#   INT 0x10   功能号:0x03       功能描述:获取光标位置
 # -----------------------------------------------------------
 # 输入：
 # AH 功能号 = 0x06
@@ -28,11 +21,11 @@ _start:
 # CH = 光标开始行    CL = 光标结束行
 # DH = 行           DL = 列
 get_cursor_pos:
-	mov	$0x03, %ah
-	xor	%bh, %bh
-	int	$0x10
+    mov $0x03, %ah
+    xor %bh, %bh
+    int $0x10
 # ------------------------------------------------------------------
-#   INT 0x10   功能号:0x13	   功能描述:以电传打字机的方式显示字符串
+#   INT 0x10   功能号:0x13       功能描述:以电传打字机的方式显示字符串
 # ------------------------------------------------------------------
 # 输入：
 # AH 功能号 = 0x06         AL 显示模式 = 0x01(字符串只包含字符码,显示之后更新光标位置,属性值在BL中)
@@ -42,14 +35,13 @@ get_cursor_pos:
 # ES:BP 字符串的段:偏移地址
 # 无返回值
 show_mbr_msg:
-    .equ LN, mbr_msg_end-mbr_msg
-	mov	$LN, %cx
-	mov	$0x0007, %bx
-	mov $mbr_msg, %bp
-	mov	$0x1301, %ax
-	int	$0x10
+    mov $BOOTMSGLN, %cx
+    mov $0x0007, %bx
+    mov $mbr_msg, %bp
+    mov $0x1301, %ax
+    int $0x10
 # ------------------------------------------------------------------
-#   INT 0x13   功能号:0x02	   功能描述:读扇区
+#   INT 0x13   功能号:0x02       功能描述:读扇区
 # ------------------------------------------------------------------
 # 输入：
 # AH 功能号 = 0x02         AL 读取的扇区数量 = SETUPLEN
@@ -59,34 +51,26 @@ show_mbr_msg:
 # 返回值:
 # 如果出错则CF标志置位, AH中是出错码
 load_setup:
-	mov	$0x0080, %dx
-	mov	$0x0002, %cx
-	mov $SETUPSEG, %ax
-    mov %ax, %es
+    mov $0x0080, %dx
+    mov $0x0002, %cx
+    mov $SETUPSEG, %ax
+    mov %ax, %es               #将setup加载到0x8000
     xor %bx, %bx
-	.equ AX, 0x0200+SETUPLEN
-	mov $AX, %ax
-	int	$0x13
-	jnc	ok_load_setup
-	jmp end
+    xor %ax, %ax
+    mov $0x02, %ah
+    mov $SETUPLEN, %al         #setup 目前只占一个磁盘扇区
+    int $0x13
+    jnc ok_load_setup
+    jmp end                    #加载失败则无限循环
 ok_load_setup:
-    ljmp $SETUPSEG, $0
+    ljmp $SETUPSEG, $0         #跳转到setup 0x800:0
 end:
     jmp end
 mbr_msg:
-	.byte 13,10
-	.ascii "PixiuOs is booting ..."
-	.byte 13,10
+    .byte 13,10
+    .ascii "PixiuOs is booting ..."
+    .byte 13,10
 mbr_msg_end:
-	.org 508
-root_dev:
-	.word ROOT_DEV
+    .org 510
 boot_flag:
-	.word 0xAA55
-
-	.text
-	endtext:
-	.data
-	enddata:
-	.bss
-	endbss:
+    .word 0xAA55
