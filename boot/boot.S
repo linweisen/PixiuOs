@@ -24,7 +24,7 @@ clear_display:
     xor %ax, %ax
     mov $0x06, %ah
     mov $0x00, %al
-    mov $0x17, %bh
+    mov $0x07, %bh
     mov $0x00, %cx
     mov $0xffff, %dx
     int $0x10
@@ -41,19 +41,6 @@ set_cursor_pos:
     mov $0x02, %ah
     xor %bh, %bh
     mov $0, %dx
-    int $0x10
-# -----------------------------------------------------------
-#   INT 0x10   功能号:0x03       功能描述:获取光标位置
-# -----------------------------------------------------------
-# 输入：
-# AH 功能号 = 0x06
-# BH 页号 = 0x00
-# 返回值：
-# CH = 光标开始行    CL = 光标结束行
-# DH = 行           DL = 列
-get_cursor_pos:
-    mov $0x03, %ah
-    xor %bh, %bh
     int $0x10
 # ------------------------------------------------------------------
 #   INT 0x10   功能号:0x13       功能描述:以电传打字机的方式显示字符串
@@ -99,7 +86,17 @@ end:
     jmp end
 mbr_msg:
     .byte 13,10
-    .ascii "PixiuOs is booting ..."
+    .ascii "poooop. poooooop pp    pp poooooop pp    pp  .poop.  .poooo. "
+    .byte 13,10
+    .ascii "oo  `op   `oo'   `op  po'   `oo'   oo    oo .op  io. oo'  ip "
+    .byte 13,10
+    .ascii "oooopp'    oo     `oppo'     oo    oo    oo oo    oo `opo.   "
+    .byte 13,10
+    .ascii "oo~~~      oo     .ppip.     oo    oo    oo oo    oo   `iop. "
+    .byte 13,10
+    .ascii "oo        .oo.   .op  io.   .oo.   oop  poo `op  po' pp   op "
+    .byte 13,10
+    .ascii "oo      ioooooop ip    ip ioooooop ~ioooop'  `ioop'  `ooooi' "
     .byte 13,10
 mbr_msg_end:
     .org 510
