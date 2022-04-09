@@ -21,7 +21,7 @@ $(OBJDIR)/kernel/kernel.img: $(IMG_OBJS)
 	dd if=$(OBJDIR)/boot/boot of=$(OBJDIR)/kernel/kernel.img~ conv=notrunc 2>/dev/null
 	dd if=$(OBJDIR)/boot/setup of=$(OBJDIR)/kernel/kernel.img~ seek=1 conv=notrunc 2>/dev/null
 	dd if=$(OBJDIR)/kernel/pixiu of=$(OBJDIR)/kernel/kernel.img~ seek=3 conv=notrunc 2>/dev/null
-	mv $(OBJDIR)/boot/kernel.img~ $(OBJDIR)/boot/kernel.img
+	mv $(OBJDIR)/kernel/kernel.img~ $(OBJDIR)/kernel/kernel.img
 
 $(OBJDIR)/kernel/%.o: kernel/%.c
 	@mkdir -p $(@D)
