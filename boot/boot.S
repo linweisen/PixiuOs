@@ -84,6 +84,13 @@ ok_load_setup:
     ljmp $0, $STACKADDR         #跳转到setup 0x0:8000
 end:
     jmp end
+#输出
+# poooop. poooooop pp    pp poooooop pp    pp  .poop.  .poooo.
+# oo  `op   `oo'   `op  po'   `oo'   oo    oo .op  io. oo'  ip
+# oooopp'    oo     `oppo'     oo    oo    oo oo    oo `opo.
+# oo~~~      oo     .ppip.     oo    oo    oo oo    oo   `iop.
+# oo        .oo.   .op  io.   .oo.   oop  poo `op  po' pp   op
+# oo      ioooooop ip    ip ioooooop ~ioooop'  `ioop'  `ooooi'
 mbr_msg:
     .byte 13,10
     .ascii "poooop. poooooop pp    pp poooooop pp    pp  .poop.  .poooo. "
