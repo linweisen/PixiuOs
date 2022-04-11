@@ -2,6 +2,8 @@ IMG_OBJS := $(OBJDIR)/boot/boot $(OBJDIR)/boot/setup $(OBJDIR)/kernel/pixiu
 
 KERN_SRCFILES := kernel/main.c
 
+KERN_LDFLAGS := $(LDFLAGS) -T kernel/kernel.ld -nostdlib
+
 KERN_SRCFILES := $(wildcard $(KERN_SRCFILES))
 
 # Binary program images to embed within the kernel.
@@ -27,8 +29,8 @@ $(OBJDIR)/kernel/%.o: kernel/%.c
 	@mkdir -p $(@D)
 	$(CC) -nostdinc $(KERN_CFLAGS) -c -o $@ $<
 
-$(OBJDIR)/kernel/pixiu: $(KERN_OBJFILES) $(KERN_BINFILES)
-	$(LD) -o $@ $(KERN_LDFLAGS) $(KERN_OBJFILES) $(GCC_LIB) -e main -b binary $(KERN_BINFILES)
+$(OBJDIR)/kernel/pixiu: $(KERN_OBJFILES) $(KERN_BINFILES) kernel/kernel.ld
+	$(LD) -o $@ $(KERN_LDFLAGS) $(KERN_OBJFILES) $(GCC_LIB) -b binary $(KERN_BINFILES)
 	$(OBJDUMP) -S $@ > $@.asm
 	$(NM) -n $@ > $@.sym
 
